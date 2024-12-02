@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "app"
+version = "0.1.0"
+description = ""
+authors = ["Bagpyp <robert@bagpyp.net>"]
+readme = "README.md"
+packages = [
+    { include = "src", from = "."},
+]
+package-mode = true
+
+
+[tool.poetry.dependencies]
+python = "^3.13"
+black = {extras = ["jupyter"], version = "^24.10.0"}
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
