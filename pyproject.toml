@@ -12,7 +12,7 @@ package-mode = true
 
 [tool.poetry.dependencies]
 python = "^3.13"
-black = {extras = ["jupyter"], version = "^24.10.0"}
+black = {extras = ["jupyter"], version = "^25.1.0"}
 python-dotenv = "^1.0.1"
 
 
