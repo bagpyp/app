@@ -37,13 +37,6 @@ app/
 
 ## Getting Started
 
-### Clone the Repository
-
-```bash
-git clone https://github.com/your-username/python-starter.git
-cd python-starter
-```
-
 ### Install Dependencies
 
 ```bash
