@@ -5,10 +5,10 @@ from dotenv import load_dotenv
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENV = os.getenv("ENVIRONMENT", "local")
 
+load_dotenv()
 if ENV == "test":
+    # overwrite local vars (like DB port)
     load_dotenv(f"{root_dir}/.env.test")
-else:
-    load_dotenv()
 
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
