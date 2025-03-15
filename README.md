@@ -1,14 +1,17 @@
-
 # Python Starter Project
 
-This is a minimal Python project template designed to help you quickly bootstrap a new Python project. It includes a basic structure, dependency management with Poetry, and configuration loading via `python-dotenv`.
+This project is a minimal FastAPI template designed to help you quickly bootstrap a new Python project with Docker, automated database migrations, and a robust testing setup. It uses Poetry for dependency management and `python-dotenv` for environment configuration.
+
+---
 
 ## Features
 
-- **Dependency Management**: Uses [Poetry](https://python-poetry.org/) for managing dependencies and packaging.
-- **Environment Configuration**: Uses [python-dotenv](https://github.com/theskumar/python-dotenv) for environment variable management.
-- **Code Formatting**: Configured with [Black](https://black.readthedocs.io/) for consistent code style.
-- **Extensible Project Structure**: Provides a foundation for scaling your project.
+- **Dockerized Database Services**: Spin up Postgres containers for development and testing using Docker Compose.
+- **Dependency Management**: Uses [Poetry](https://python-poetry.org/) for managing project dependencies and packaging.
+- **Environment Configuration**: Loads settings from `.env` and `.env.test` using [python-dotenv](https://github.com/theskumar/python-dotenv).
+- **Automatic Database Migrations**: Integrates [Alembic](https://alembic.sqlalchemy.org/) to manage and run migrations automatically on app startup.
+- **FastAPI Starter App**: A simple FastAPI application that exposes a `/health` endpoint to verify the application and database connection.
+- **Testing Setup**: Uses [pytest](https://pytest.org/) with fixtures that override the database connection, ensuring tests run on an isolated test database.
 
 ---
 
@@ -17,90 +20,156 @@ This is a minimal Python project template designed to help you quickly bootstrap
 ```plaintext
 app/
 ├── src/
-│   ├── __init__.py     # Empty init file for package
-│   ├── config.py       # Loads environment variables
-│   ├── main.py         # Entry point for the app
-├── .env                # Environment variable file
-├── .env.test           # Environment variable file for tests
-├── pyproject.toml      # Poetry configuration
-├── README.md           # This file
+│   ├── config.py             # Loads environment variables and constructs the DB URL
+│   ├── main.py               # FastAPI application entry point (includes migration run on startup)
+│   ├── api/
+│   │   └── main.py           # API router with the /health endpoint
+│   ├── data/
+│   │   ├── main.py           # Database session management and connection helpers
+│   │   ├── models.py         # SQLAlchemy models (e.g., User)
+│   │   └── alembic/          # Alembic migration scripts directory
+├── .env                      # Environment variables for development
+├── .env.test                 # Environment variables for testing
+├── docker-compose.yml        # Docker Compose file for spinning up Postgres services
+├── pyproject.toml            # Poetry configuration
+├── README.md                 # This file
+├── tests/
+│   ├── conftest.py           # Test fixtures overriding DB connections
+│   └── test_config.py        # Sample test for the environment setup endpoint
 ```
 
 ---
 
-## Requirements
+## Prerequisites
 
-- Python 3.13+
-- [Poetry](https://python-poetry.org/docs/#installation)
+- **Python**: Version 3.13+
+- **Poetry**: ([Installation Guide](https://python-poetry.org/docs/#installation))
+- **Docker & Docker Compose**: To run the Postgres services
 
 ---
 
-## Getting Started
+## Spinning Up Services with Docker
 
-### Install Dependencies
+The project provides a `docker-compose.yml` file that defines two Postgres services:
+
+- **Development Database (`db`)**:
+  - Runs on port **5432**
+  - Uses the environment variables (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`)
+  - Persists data in the Docker volume `data`
+
+- **Test Database (`db-test`)**:
+  - Runs on port **5431** (mapped to container’s port 5432)
+  - Uses the same credentials but is isolated via the Docker volume `test_data`
+
+To start the services, run:
 
 ```bash
-poetry install
+docker-compose up -d
 ```
 
-### Configure Environment Variables
-
-Create a `.env` file in the root directory. Add your environment variables as needed. For example:
-
-```plaintext
-# .env
-ENV=development
-```
-
-For testing, use a separate `.env.test` file:
-
-```plaintext
-# .env.test
-ENV=test
-```
-
-### Run the App
-
-Activate the Poetry shell and run the application:
-
-```bash
-poetry shell
-python src/main.py
-```
+This command launches the Postgres containers needed for both running the app and executing tests.
 
 ---
 
-## Customizing
+## Running the Application
 
-1. **Add Your Logic**: Modify `src/main.py` to include your application logic.
-2. **Organize Code**: Expand the `src/` directory with additional modules and packages.
-3. **Add Dependencies**: Use `poetry add <package>` to include additional dependencies.
+1. **Install Dependencies**
+
+   Use Poetry to install the project dependencies:
+
+   ```bash
+   poetry install
+   ```
+
+3. **Start the Application**
+
+   Use the pre-configured run configuration (PyCharm renderable only)
+   
+   Or, activate the Poetry shell and run the app:
+
+   ```bash
+   poetry shell
+   python src/main.py
+   ```
+
+   On startup, the app will:
+   - Initialize the FastAPI application.
+   - Run Alembic migrations to apply any pending schema changes.
+   - Expose a `/health` endpoint to verify the application and its database connection.
 
 ---
 
-## Development Tips
+## Running Tests
 
-### Using Black for Formatting
-
-This project includes Black for code formatting. Run the formatter with:
+The project uses `pytest` to run tests with an isolated test database. To execute the tests, run:
 
 ```bash
-poetry run black src/
+poetry run pytest
 ```
 
-### Testing
+During testing:
+- The `conftest.py` file overrides the database dependency so that tests use the test database (configured via `.env.test`).
+- The test database schema is dropped and recreated for each test function, ensuring test isolation.
 
-Use the test-specific `.env.test` configuration when writing and running tests. Configure your testing framework (e.g., `pytest`) as needed.
+---
+
+## How Migrations Work
+
+Database migrations are managed with Alembic:
+
+- **Configuration**:  
+  The `alembic.ini` file (in the project root) points to the migration scripts in `src/data/alembic`.
+
+- **Migration Scripts**:  
+  The migration scripts (like `2025_03_15_1049-f5301436a15e_initial.py`) define schema changes such as creating tables and indexes. For example, the initial migration creates a `user` table with indexes on `id`, `name`, and `email`.
+
+- **Automatic Execution on Startup**:  
+  When the FastAPI app starts, it runs a lifespan event that executes:
+  
+  ```python
+  command.upgrade(alembic_cfg, "head")
+  ```
+  
+  This command applies all pending migrations to ensure the database schema is up to date.
+
+- **Creating New Migrations**:  
+  To generate a new migration _after modifying your SQLAlchemy models_, use:
+  
+  ```bash
+  alembic revision --autogenerate -m "your migration message"
+  ```
+  
+  Then, either restart the app (which will run the migrations automatically) or manually run:
+  
+  ```bash
+  alembic upgrade head
+  ```
+
+---
+
+## Customizing the Starter App
+
+- **Extend Your Application**:  
+  Modify `src/api/main.py` and `src/main.py` to add your application logic and additional endpoints.
+- **Add New Dependencies**:  
+  Use `poetry add <package>` to include new libraries.
+- **Code Formatting**:  
+  The PyCharm settings to format-on-save with Black are saved in version control
+  If you're using VS Code, run Black to format your code:
+  
+  ```bash
+  poetry run black src/
+  ```
 
 ---
 
 ## Author
 
-Created by Bagpyp.  
+Created by Bagpyp  
 [Email Me](mailto:robert@bagpyp.net)
 
 ---
 
 ## License
 
-This project is open source. You can add a license if needed.
+This project is open source. Add a license as needed.
