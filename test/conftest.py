@@ -1,5 +1,3 @@
-from typing import Any, Generator
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -12,11 +10,11 @@ from src.main import app
 
 # PORT has been overwritten by test/__init__.py and src/config.py
 test_engine = create_engine(DB_URL)
-TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+TestSessionLocal = sessionmaker(bind=test_engine)
 
 
 @pytest.fixture(scope="function")
-def test_db() -> Generator[Session, Any, None]:
+def test_db():
     """Fixture to tear down and set the test database back up"""
     # Delete all data from previously ran tests
     Base.metadata.drop_all(bind=test_engine)

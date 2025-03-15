@@ -1,3 +1,3 @@
 import os
 
-os.environ["ENV"] = "test"
+os.environ["ENVIRONMENT"] = "test"

@@ -8,7 +8,7 @@ ENV = os.getenv("ENVIRONMENT", "local")
 load_dotenv()
 if ENV == "test":
     # overwrite local vars (like DB port)
-    load_dotenv(f"{root_dir}/.env.test")
+    load_dotenv(f"{root_dir}/.env.test", override=True)
 
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
