@@ -1,15 +1,16 @@
 # Terraform GCP Template
 
-This repository is a template for deploying a Cloud Run service (along with a Storage bucket and a Pub/Sub topic) on Google Cloud Platform (GCP) using Terraform.
+This repository is a template for deploying your Cloud Run service on Google Cloud Platform (GCP) using Terraform.
 
 ## Prerequisites
 
 1. **GCP Project Setup**
-   - Create a GCP project (if you haven't already) and note your project ID.
-   - Enable the following APIs:
-     - Cloud Run API
-     - Cloud Storage API
-     - Pub/Sub API
+   - Set up Google Cloud with a payment method and a gmail account by visiting https://console.cloud.google.com/welcome/new?pli=1
+   - Note down your Billing ID shown here: https://console.cloud.google.com/billing
+   - Install the `gcloud` CLI SDK with brew
+      ```shell
+      brew install --cask google-cloud-sdk
+      ```
 
 2. **Create a Bucket for Terraform State**
    - Use the following command to create a bucket for your Terraform state. Replace `my-gcp-project` with your project ID and adjust the bucket name if needed:

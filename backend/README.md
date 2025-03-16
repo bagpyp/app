@@ -33,7 +33,7 @@ app/
 ├── docker-compose.yml        # Docker Compose file for spinning up Postgres services
 ├── pyproject.toml            # Poetry configuration
 ├── README.md                 # This file
-├── tests/
+├── test/
 │   ├── conftest.py           # Test fixtures overriding DB connections
 │   └── test_config.py        # Sample test for the environment setup endpoint
 ```
@@ -42,9 +42,12 @@ app/
 
 ## Prerequisites
 
-- **Python**: Version 3.13+
-- **Poetry**: ([Installation Guide](https://python-poetry.org/docs/#installation))
-- **Docker & Docker Compose**: To run the Postgres services
+- **Homebrew, Python & Poetry**: These are handled during setup in [the root level README](../README.md)
+- **Docker & Docker Compose**: Required to run the Postgres services that the application relies on
+  ```shell
+  brew install --cask docker
+  ```
+
 
 ---
 
@@ -61,7 +64,7 @@ The project provides a `docker-compose.yml` file that defines two Postgres servi
   - Runs on port **5431** (mapped to container’s port 5432)
   - Uses the same credentials but is isolated via the Docker volume `test_data`
 
-To start the services, run:
+To start the services, make sure a Docker engine is running, then run:
 
 ```bash
 docker-compose up -d
@@ -75,10 +78,16 @@ This command launches the Postgres containers needed for both running the app an
 
 1. **Install Dependencies**
 
-   Use Poetry to install the project dependencies:
+   Use Poetry to install the project dependencies (must be in .venv to use some features of this template)
 
    ```bash
-   poetry install
+   poetry config virtualenvs.in-project true && poetry install
+   ```
+    
+   This will create a virtual environment with its own isolated python interpreter.  Regardless of what IDE you're using, you must set your python interpreter to the one that was just created.  It should be in `.venv/bin/python`, but to be certain you have the correct absolute path, copy it to your clipboard with the following command:
+
+   ```bash
+   poetry env info --executable |pbcopy
    ```
 
 3. **Start the Application**
@@ -133,6 +142,7 @@ Database migrations are managed with Alembic:
   This command applies all pending migrations to ensure the database schema is up to date.
 
 - **Creating New Migrations**:  
+  Whenever changes to your ORM classes require changes to the underlying databse, alembic will generate the scripts for making those changes (and reverting them), the scripts themselves are what we're referring to as _a migration_.
   To generate a new migration _after modifying your SQLAlchemy models_, use:
   
   ```bash
