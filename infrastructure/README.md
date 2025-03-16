@@ -1,77 +1,64 @@
-# Terraform GCP Template
+# Infrastructure as Code
 
-This repository is a template for deploying your Cloud Run service on Google Cloud Platform (GCP) using Terraform.
+This repository is where you will store all your infrastructure changes.  Never modify resources directly in GCP.  Drive all your infrastructure with code and publish the changes using `terraform plan` and `terraform apply` instead.  This will ensure repeatable builds and robust application development throughout the SDLC.
 
 ## Prerequisites
 
-1. **GCP Project Setup**
+**GCP Project Setup**
    - Set up Google Cloud with a payment method and a gmail account by visiting https://console.cloud.google.com/welcome/new?pli=1
    - Note down your Billing ID shown here: https://console.cloud.google.com/billing
    - Install the `gcloud` CLI SDK with brew
       ```shell
       brew install --cask google-cloud-sdk
       ```
-
-2. **Create a Bucket for Terraform State**
-   - Use the following command to create a bucket for your Terraform state. Replace `my-gcp-project` with your project ID and adjust the bucket name if needed:
-     ```bash
-     gcloud storage buckets create gs://tf-state-my-gcp-project --location=us-central1
-     ```
-   - The bucket name (`tf-state-my-gcp-project`) is hard-coded in the `backend` block in `main.tf`.
-
-3. **Terraform Authentication**
+     
+**Terraform Authentication**
    - Authenticate with GCP to allow Terraform to manage resources:
      ```bash
      gcloud auth application-default login
      ```
 
-4. **Docker Build and Push**
-   Terraform handles your infrastructure, but deploying your application requires you to build and push a Docker image:
-   
-   - **Build the Docker Image:**
-     Using the `Dockerfile` for the app, run:
-     ```bash
-     docker build -t gcr.io/my-gcp-project/my-app:latest .
-     ```
-     Replace `my-gcp-project` with your actual project ID and `my-app` with your application name.
+## Automated Setup with setup.sh
 
-   - **Authenticate Docker with GCP Container Registry:**
-     This command configures Docker to use your GCP credentials:
-     ```bash
-     gcloud auth configure-docker
-     ```
-     
-   - **Push the Docker Image:**
-     Once built and authenticated, push your image:
-     ```bash
-     docker push gcr.io/my-gcp-project/my-app:latest
-     ```
+This repository includes a setup script (`setup.sh`) that automates several steps of the GCP project configuration and Terraform backend setup. The script will:
 
-5. **Using the Repository Template**
-   - Update `variables.tf` if necessary, especially the default project ID.
-   - Adjust any module configuration in `main.tf` as needed.
-   - Initialize Terraform:
-     ```bash
-     terraform init
-     ```
-   - Preview the changes:
+- Prompt you for your desired GCP project name, region, and billing account ID.
+- Open your browser to authenticate with Google.
+- Create a new GCP project with a unique project ID.
+- Link the project to your specified billing account.
+- Enable necessary GCP services.
+- Create a Cloud Storage bucket for storing your Terraform state file.
+- Generate a `backend.config` file for Terraform initialization
+- Initialize your local Terraform repo using said config
+- Authenticate your local Docker server with GCP
+- Build an initial image of the backend service and push it to the Artifact Registry in GCP
+- Generate a .tfvars file to store your project_id, region and image_url for the container 
+
+**Run the Script**  
+   If not already executable, change the permission:
+   ```bash
+   chmod +x setup.sh
+   ```
+   Then, run it
+   ```bash
+   ./setup.sh
+   ```
+
+**Pouring Concrete**
+   This is how you actually provision the cloud infrastructure needed for your application to run
+   - Preview the cloud components that this IaC repo will provision:
      ```bash
      terraform plan
      ```
-   - Apply the configuration:
+   - Provision them by applying the configuration:
      ```bash
-     terraform apply
+     terraform apply -var-file=terraform.tfvars
      ```
 
 ## Additional Notes
 
-- **Backend Configuration:**  
-  The Terraform backend in `main.tf` hardcodes the bucket name. If you need to change it, update the value in the file or use a separate backend configuration file during initialization.
-  
 - **CI/CD Integration:**  
-  After your initial setup, consider integrating this template with a CI/CD pipeline to automate further deployments.
+  After your initial setup, the plan and apply steps should be automated using a CI/CD pipeline to trigger further deployments (only when files inside this file's parent repo change though).
 
 - **Docker & GCP Integration:**  
-  Remember, while Terraform provisions your infrastructure, Docker commands are part of your application deployment workflow. Make sure you have your image built and pushed before applying Terraform changes that reference the image URL.
-
-This repository serves as a boilerplate for a GCP project using Terraform. Customize it further based on your project's needs.
+  Remember, while Terraform provisions your infrastructure, Docker commands are part of your application deployment workflow. Any changes to your application logic will need to trigger a re-build and re-deploy of the image in GCP.  That should happen much, much more frequently than changes to your infrastructure.

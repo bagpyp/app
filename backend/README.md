@@ -7,6 +7,13 @@ This project is a minimal FastAPI template designed to help you quickly bootstra
 ## Features
 
 - **Dockerized Database Services**: Spin up Postgres containers for development and testing using Docker Compose.
+  - **Development Database (`db`)**:
+    - Runs on port **5432**
+    - Uses the environment variables (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`)
+    - Persists data in the Docker volume `data`
+  - **Test Database (`db-test`)**:
+    - Runs on port **5431** (mapped to container’s port 5432)
+    - Uses the same credentials but is isolated via the Docker volume `test_data`
 - **Dependency Management**: Uses [Poetry](https://python-poetry.org/) for managing project dependencies and packaging.
 - **Environment Configuration**: Loads settings from `.env` and `.env.test` using [python-dotenv](https://github.com/theskumar/python-dotenv).
 - **Automatic Database Migrations**: Integrates [Alembic](https://alembic.sqlalchemy.org/) to manage and run migrations automatically on app startup.
@@ -47,31 +54,11 @@ app/
   ```shell
   brew install --cask docker
   ```
-
-
----
-
-## Spinning Up Services with Docker
-
-The project provides a `docker-compose.yml` file that defines two Postgres services:
-
-- **Development Database (`db`)**:
-  - Runs on port **5432**
-  - Uses the environment variables (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`)
-  - Persists data in the Docker volume `data`
-
-- **Test Database (`db-test`)**:
-  - Runs on port **5431** (mapped to container’s port 5432)
-  - Uses the same credentials but is isolated via the Docker volume `test_data`
-
-To start the services, make sure a Docker engine is running, then run:
-
-```bash
-docker-compose up -d
-```
-
-This command launches the Postgres containers needed for both running the app and executing tests.
-
+  To start the database server, make sure your Docker engine is running, then run:
+  ```bash
+  docker-compose up -d
+  ```
+  🚨 If you're using PyCharm, run this using the preloaded configuration, `db` 
 ---
 
 ## Running the Application
@@ -92,19 +79,12 @@ This command launches the Postgres containers needed for both running the app an
 
 3. **Start the Application**
 
-   Use the pre-configured run configuration (PyCharm renderable only)
-   
-   Or, activate the Poetry shell and run the app:
+   Activate the Poetry shell and run the app:
 
    ```bash
-   poetry shell
-   python src/main.py
+   poetry run python src/main.py
    ```
-
-   On startup, the app will:
-   - Initialize the FastAPI application.
-   - Run Alembic migrations to apply any pending schema changes.
-   - Expose a `/health` endpoint to verify the application and its database connection.
+   🚨 If you're using PyCharm, run this using the preloaded configuration, `backend`
 
 ---
 
@@ -115,6 +95,8 @@ The project uses `pytest` to run tests with an isolated test database. To execut
 ```bash
 poetry run pytest
 ```
+🚨 If you're using PyCharm, run this using the preloaded configuration, `pytest` 
+
 
 During testing:
 - The `conftest.py` file overrides the database dependency so that tests use the test database (configured via `.env.test`).
@@ -176,7 +158,7 @@ Database migrations are managed with Alembic:
 ## Author
 
 Created by Bagpyp  
-[Email Me](mailto:robert@bagpyp.net)
+[Email Me](mailto:rtc@bagpyp.net)
 
 ---
 

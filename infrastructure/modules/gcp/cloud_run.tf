@@ -1,5 +1,5 @@
 resource "google_cloud_run_service" "backend" {
-  name     = "backend-service"
+  name     = "backend"
   location = var.region
 
   template {
@@ -9,12 +9,6 @@ resource "google_cloud_run_service" "backend" {
         ports {
           container_port = 8080
         }
-        env = [
-          for key, value in var.env_vars : {
-            name  = key
-            value = value
-          }
-        ]
       }
     }
   }
