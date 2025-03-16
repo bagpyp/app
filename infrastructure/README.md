@@ -52,7 +52,7 @@ This repository includes a setup script (`setup.sh`) that automates several step
      ```
    - Provision them by applying the configuration:
      ```bash
-     terraform apply -var-file=terraform.tfvars
+     terraform apply
      ```
 
 ## Additional Notes

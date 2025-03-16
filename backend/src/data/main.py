@@ -25,7 +25,7 @@ def create_session():
 
 def get_db():
     """
-    generator clone of the above, only used by FastAPI
+    generator clone of the above, only used by FastAPI's dependency injection mechanism.
     """
     db = SessionLocal()
     try:

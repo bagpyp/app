@@ -44,12 +44,15 @@ gcloud config set project "${PROJECT_ID}"
 gcloud billing projects link "${PROJECT_ID}" --billing-account="${BILLING_ACCOUNT_ID}"
 
 # Enable necessary APIs
-gcloud services enable compute.googleapis.com \
+gcloud services enable \
   storage.googleapis.com \
   cloudbuild.googleapis.com \
   artifactregistry.googleapis.com \
   run.googleapis.com \
-  sqladmin.googleapis.com
+  sqladmin.googleapis.com \
+  vpcaccess.googleapis.com \
+  secretmanager.googleapis.com \
+  servicenetworking.googleapis.com
 
 # Create Terraform state bucket
 BUCKET_NAME="tf-state-${PROJECT_ID}"
@@ -78,7 +81,7 @@ gcloud artifacts repositories create "${REPO_NAME}" \
 # Artifact Registry image URL format: REGION-docker.pkg.dev/PROJECT_ID/REPO_NAME/IMAGE:TAG
 CONTAINER_URL="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/backend:latest"
 echo "Building Docker image: ${CONTAINER_URL}"
-docker build -t "${CONTAINER_URL}" ../backend
+docker build --platform linux/amd64 -t "${CONTAINER_URL}" ../backend
 
 # Authenticate Docker to use Artifact Registry
 echo "Authenticating Docker with Artifact Registry..."
