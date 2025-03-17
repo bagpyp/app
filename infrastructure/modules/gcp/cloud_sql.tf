@@ -10,7 +10,7 @@ resource "google_sql_database_instance" "postgres_instance" {
   database_version = "POSTGRES_17"
 
   settings {
-    tier = "db-perf-optimized-N-2"  # db-perf-optimized-N-2 for Enterprise+ GCP, db-custom-1-3840 for Enterprise GCP, db-f1-micro for free GCP (all cheapest)
+    tier    = "db-perf-optimized-N-2" # db-perf-optimized-N-2 for Enterprise+ GCP, db-custom-1-3840 for Enterprise GCP, db-f1-micro for free GCP (all cheapest)
     edition = "ENTERPRISE_PLUS"
     ip_configuration {
       ipv4_enabled    = false

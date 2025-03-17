@@ -55,6 +55,29 @@ This repository includes a setup script (`setup.sh`) that automates several step
      terraform apply
      ```
 
+## Backend service URL
+
+Once you successfully apply the terraform configuration, use the following script to print the URL of your newly provisioned API to the console. 
+
+```shell
+terraform output
+```
+
+You can verify that your backend has been deployed by sending a request to the /health endpoint  
+
+
+## DB Password
+
+To view the raw value of the password to the database in your deployed environment, 
+
+```shell
+terraform output -raw db_password
+```
+
+You can verify that your backend has been deployed by sending a request to the /health endpoint  
+
+
+
 ## Additional Notes
 
 - **CI/CD Integration:**  

@@ -1,7 +1,12 @@
-data "google_project" "current" {
-  project_id = var.project_id
+output "cloud_run_url" {
+  value = module.gcp.cloud_run_url
 }
 
-output "cloud_run_url" {
-  value = "https://${google_cloud_run_service.backend.name}-${data.google_project.current.number}.${var.region}.run.app"
+output "db_host" {
+  value = module.gcp.db_host
+}
+
+output "db_password" {
+  value     = module.gcp.db_password
+  sensitive = true
 }
