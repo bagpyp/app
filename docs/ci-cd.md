@@ -22,6 +22,12 @@ gcloud projects add-iam-policy-binding $(gcloud config get-value project) \
   --role "roles/editor"
 ```
 
+```shell
+gcloud projects add-iam-policy-binding $(gcloud config get-value project) \
+  --member "serviceAccount:ci-cd-sa@$(gcloud config get-value project).iam.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+```
+
 ## Generate a Service Account Key
 
 Run the following command to create a JSON key file:
@@ -31,8 +37,9 @@ gcloud iam service-accounts keys create ~/key-$(gcloud config get-value project)
   --iam-account=ci-cd-sa@$(gcloud config get-value project).iam.gserviceaccount.com
 ```
 
-## Add the Service Account Key to GitHub Secrets
+## GitHub Action Secrets
 
 1.	Open the `~key.json` file and copy its entire contents.
 2.	In your GitHub repository, go to **Settings** → **Secrets and variables** → **Actions**.
 3.	Create a new secret with the name `GCP_SA_KEY` and paste the JSON content as the value.
+4.  🚨 Similarly, make sure to add `GCP_PROJECT_ID` and `GCP_REGION`.  You can find them both by CDing into the `infrastructure` repo and running `terraform output` 

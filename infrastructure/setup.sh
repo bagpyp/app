@@ -52,7 +52,8 @@ gcloud services enable \
   sqladmin.googleapis.com \
   vpcaccess.googleapis.com \
   secretmanager.googleapis.com \
-  servicenetworking.googleapis.com
+  servicenetworking.googleapis.com \
+  cloudresourcemanager.googleapis.com
 
 # Create Terraform state bucket
 BUCKET_NAME="tf-state-${PROJECT_ID}"

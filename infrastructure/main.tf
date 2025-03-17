@@ -4,6 +4,7 @@ provider "google" {
 }
 
 terraform {
+  backend "gcs" {}
   required_version = ">= 1.11.2"
   required_providers {
     google = {
