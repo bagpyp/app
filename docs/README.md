@@ -31,6 +31,7 @@ brew install asdf
 asdf plugin add python
 asdf plugin add poetry
 asdf plugin add terraform
+asdf plugin add nodejs
 asdf install
 ```
 
@@ -41,6 +42,7 @@ Verify that asdf has installed the dependencies and set their current versions c
 
 The above command should output ths following:
 ```plaintext
+nodejs          23.10.0         /path/to/this/.tool-versions
 poetry          2.1.0           /path/to/this/.tool-versions
 python          3.13.2          /path/to/this/.tool-versions
 terraform       1.11.2          /path/to/this/.tool-versions
