@@ -1,6 +1,6 @@
 # App
 
-This is a whole ass application.
+This is a whole ass, mono-repo application.  It's got a database and tests and a bunch of other little goodies.
 
 ## Set up
 
@@ -20,6 +20,7 @@ asdf install
 
 ## Contents
 
-Follow the setup instructions in the next two sections.
-- [Backend Service](backend/README.md)
-- [Infrastructure Provisioning](infrastructure/README.md)
+Follow the setup instructions in the following order.
+- [Backend Service](../backend/README.md)
+- [Infrastructure Provisioning](../infrastructure/README.md)
+- [Continuous Integration & Continuous Development (CI/CD)](./ci-cd.md)

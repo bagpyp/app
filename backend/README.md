@@ -49,7 +49,7 @@ app/
 
 ## Prerequisites
 
-- **Homebrew, Python & Poetry**: These are handled during setup in [the root level README](../README.md)
+- **Homebrew, Python & Poetry**: These are handled during setup in [the root level README](../docs/README.md)
 - **Docker & Docker Compose**: Required to run the Postgres services that the application relies on
   ```shell
   brew install --cask docker

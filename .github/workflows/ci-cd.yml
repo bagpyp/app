@@ -1,0 +1,115 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGION: us-west1
+
+jobs:
+  # Paths job to check if changes were made in backend or infrastructure
+  paths:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      infrastructure: ${{ steps.filter.outputs.infrastructure }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Filter paths for backend and infrastructure
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            infrastructure:
+              - 'infrastructure/**'
+
+  test:
+    name: Run Backend Tests
+    runs-on: ubuntu-latest
+    needs: paths
+    if: needs.paths.outputs.backend == 'true'
+    defaults:
+      run:
+        working-directory: backend   # Set working directory to backend folder
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Dependencies
+        run: poetry install --no-interaction
+
+      - name: Run Pytest
+        run: poetry run pytest
+
+  build-and-push:
+    name: Build and Push Backend Docker Image
+    runs-on: ubuntu-latest
+    needs: [paths, test]
+    if: needs.paths.outputs.backend == 'true'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
+
+      - name: Build Docker Image
+        run: |
+          docker build --platform linux/amd64 -t ${REGION}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-repo/backend:latest ./backend
+
+      - name: Push Docker Image
+        run: |
+          docker push ${REGION}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-repo/backend:latest
+
+  terraform:
+    name: Deploy Infrastructure with Terraform
+    runs-on: ubuntu-latest
+    needs: paths
+    if: needs.paths.outputs.infrastructure == 'true'
+    environment:
+      name: production
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.4.0'
+
+      - name: Terraform Init
+        working-directory: infrastructure
+        run: terraform init -backend-config=backend.config
+
+      - name: Terraform Plan
+        id: tfplan
+        working-directory: infrastructure
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: infrastructure
+        run: terraform apply -auto-approve tfplan
