@@ -36,7 +36,7 @@ asdf install
 
 Verify that asdf has installed the dependencies and set their current versions correctly:
 ```shell
-❯ asdf current
+asdf current
 ```
 
 The above command should output ths following:
