@@ -34,6 +34,24 @@ asdf plugin add terraform
 asdf install
 ```
 
+Verify that asdf has installed the dependencies and set their current versions correctly:
+```shell
+❯ asdf current
+```
+
+The above command should output ths following:
+```plaintext
+poetry          2.1.0           /path/to/this/.tool-versions
+python          3.13.2          /path/to/this/.tool-versions
+terraform       1.11.2          /path/to/this/.tool-versions
+```
+
+If it doesn't, you may need to add the following line to your `~/.zshrc` or `~/.bashrc` file:
+```shell
+# asdf setup
+. $(brew --prefix asdf)/libexec/asdf.sh
+```
+
 ## Can't Stop Won't Stop Don't Stop Setting Up
 
 Follow the setup instructions in the following order.
