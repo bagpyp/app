@@ -56,6 +56,6 @@ If it doesn't, you may need to add the following line to your `~/.zshrc` or `~/.
 
 Follow the setup instructions in the following order.
 
-- [Backend Service](../backend/README.md)
-- [Infrastructure Provisioning](../infrastructure/README.md)
-- [Continuous Integration & Continuous Development (CI/CD)](./ci-cd.md)
+- [Backend Service](backend/README.md)
+- [Infrastructure Provisioning](infrastructure/README.md)
+- [Continuous Integration & Continuous Development (CI/CD)](.github/README.md)
